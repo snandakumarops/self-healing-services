@@ -1,7 +1,7 @@
 package com.redhat.riskvalidationservice.beans;
 
 import com.google.gson.Gson;
-import com.myspace.offermanagement.customerModel.CustomerModel;
+
 import com.redhat.riskvalidationservice.datamodels.ApbRuns;
 import com.redhat.riskvalidationservice.datamodels.Example;
 import com.redhat.riskvalidationservice.datamodels.SensuEvents;
@@ -147,25 +147,6 @@ public class RiskValidationBean {
 		return (Map) body.getProperty("aggregateMap");
 	}
 
-	// Test data for reference example
-	public CustomerModel customerDataLookup(String custId, String cntry) {
-
-		String[] classVal = new String[] {"SILVER","GOLD","PLATINUM"};
-
-		CustomerModel customerModel = new CustomerModel();
-		customerModel.setCustId(custId);
-		customerModel.setIncome((double) 123455);
-		customerModel.setAge((double) 34);
-
-		customerModel.setHomeCountry(cntry);
-		if(custId.equals("6538764975321765")) {
-			customerModel.setCustomerClass("SILVER");
-		} else {
-			customerModel.setCustomerClass(classVal[new Random().nextInt(classVal.length)]);
-		}
-
-		return customerModel;
-	}
 
 	public KieContainer getKieContainer() {
 		return kieContainer;
