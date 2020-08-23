@@ -7,10 +7,18 @@ import com.redhat.riskvalidationservice.beans.RiskValidationBean;
 import org.apache.camel.Exchange;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.kafka.KafkaComponent;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.util.logging.Logger;
 
 public class RiskValidationRouteBuilder extends RouteBuilder {
+
+
+	@Value("${ansible.tower.url}")
+	String ansibleTowerUrl;
+
+	@Value("${ansible.tower.token}")
+	String ansibleTowerToken;
 
 	private static final Logger LOG = Logger.getLogger(RiskValidationRouteBuilder.class.getName());
 
@@ -40,9 +48,9 @@ public class RiskValidationRouteBuilder extends RouteBuilder {
 					+ "&groupId=" + consumerGroup).id("apbEvents")
 			.bean(RiskValidationBean.class,"prepareAnsibleRequest")
 					.setHeader(Exchange.HTTP_METHOD, constant("POST"))
-					.setHeader("Authorization",constant("Bearer IM4Rt0WfybKDXzGQeVY9Ik1orU0Ca4"))
+					.setHeader("Authorization",constant(ansibleTowerToken))
 					.setHeader("Content-Type",constant("application/json"))
-					.toD("https4://student1.poc.rhdemo.io/api/v2/job_templates/${header.apbName}/launch/")
+					.toD("https4://"+ansibleTowerUrl+"/api/v2/job_templates/${header.apbName}/launch/")
 					.bean(RiskValidationBean.class,"readAnsibleResponse")
 					.to("kafka:"+"ansiblestat"+ "?brokers=" + kafkaBootstrap);
 
