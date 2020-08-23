@@ -1,7 +1,6 @@
 package com.redhat.riskvalidationservice.beans;
 
 import com.google.gson.Gson;
-import com.myspace.offermanagement.customerModel.CustomerModel;
 import com.redhat.riskvalidationservice.datamodels.ApbRuns;
 import com.redhat.riskvalidationservice.datamodels.Example;
 import com.redhat.riskvalidationservice.datamodels.SensuEvents;

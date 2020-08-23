@@ -76,12 +76,6 @@
   </dependencyManagement>
 
   <dependencies>
-    <dependency>
-      <groupId>com.myspace</groupId>
-
-      <artifactId>RiskRatingDMN</artifactId>
-      <version>1.0.0-SNAPSHOT</version>
-    </dependency>
 
     <!-- Decision Manager -->
     <dependency>
@@ -138,12 +132,7 @@
       <version>${camel.version}</version>
     </dependency>
 
-    <dependency>
-      <groupId>com.myspace</groupId>
-      <artifactId>customer-model</artifactId>
-    <version>1.3.0</version>
 
-    </dependency>
 
 
     <!-- Enabling health checks -->
