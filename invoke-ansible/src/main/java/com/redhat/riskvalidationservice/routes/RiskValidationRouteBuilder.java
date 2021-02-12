@@ -9,6 +9,7 @@ import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.kafka.KafkaComponent;
 import org.springframework.beans.factory.annotation.Value;
 
+
 import java.util.logging.Logger;
 
 public class RiskValidationRouteBuilder extends RouteBuilder {
@@ -47,7 +48,7 @@ public class RiskValidationRouteBuilder extends RouteBuilder {
 					+ "&groupId=" + consumerGroup).id("apbEvents")
 			.bean(RiskValidationBean.class,"prepareAnsibleRequest")
 					.setHeader(Exchange.HTTP_METHOD, constant("POST"))
-					.setHeader("Authorization",constant("Bearer 7vXblkwleZHU3PC4Hx4JlqhqDqYXok"))
+					.setHeader("Authorization",constant("Bearer FzC0pUYtjbBYRpgTkw1ozL9WBHZke8"))
 					.setHeader("Content-Type",constant("application/json"))
 					.toD("https4://"+ansibleTowerUrl+"/api/v2/job_templates/${header.apbName}/launch/")
 					.bean(RiskValidationBean.class,"readAnsibleResponse")
