@@ -70,6 +70,8 @@ public class RiskValidationBean {
 		DMNDecisionResult resultOffer = dmnResult.getDecisionResultByName("Invoke?");
 		DMNDecisionResult playbook = dmnResult.getDecisionResultByName("Playbook");
 
+		System.out.println(resultOffer);
+
 		System.out.println("invoke"+resultOffer.getResult());
 		System.out.println("playbook"+playbook.getResult());
 
@@ -153,7 +155,10 @@ public class RiskValidationBean {
 	}
 
 
-
+	public String prepareELKCall(Exchange exchange) {
+		System.out.println("inside prepare call"+exchange.getIn().getBody());
+		return exchange.getIn().getBody().toString();
+	}
 
 
 }

@@ -40,6 +40,8 @@ public class FilterStrategy implements AggregationStrategy {
             sensuEvents.setHostName(example.getEntity().getSystem().getHostname());
             sensuEvents.setStatus(String.valueOf(example.getCheck().getStatus()));
 
+            System.out.println(example.getCheck().getMetadata().getName());
+
             System.out.println(new Gson().toJson(sensuEvents));
             HashMap<String, List<ApbRuns>> aggregateMap = null;
 
