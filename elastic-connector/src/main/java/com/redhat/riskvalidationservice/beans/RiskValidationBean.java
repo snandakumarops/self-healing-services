@@ -38,34 +38,25 @@ public class RiskValidationBean {
 		this.kieContainer = kieContainer;
 	}
 
+	public String parseBody(Exchange exchange) {
 
+		String responseString = "{\"host\":\""+exchange.getIn().getHeader("KAFKA.key")+"\",\"jobId\":"+exchange.getIn().getBody().toString()+"}";
+		System.out.println(responseString);
+		return responseString;
+    }
 
-
-
-	public String prepareAnsibleRequest(Exchange exchange) {
-		String jobId = new Gson().fromJson(exchange.getIn().getBody().toString(),String.class);
-		Double jobNo = Double.parseDouble(jobId);
-		exchange.getIn().setHeader("jobId",jobNo.intValue());
-		return "";
-	}
 
 	public String readAnsibleResponse(String body) {
-		String response = null;
 		Map<String,String> mapString = new Gson().fromJson(body,Map.class);
-		if(mapString.get("status").equals("running")) {
-			Double jobNo = Double.parseDouble(new Gson().toJson(mapString.get("id")));
-			response= String.valueOf(jobNo.intValue());
-		} else {
-			response= new Gson().toJson(mapString.get("status"));
-		}
-		return response;
+		return new Gson().toJson(mapString.get("job"));
 	}
 
-	public String checkStatusResponse(String body) {
-		System.out.println(body);
-		return body;
-	}
+	public String parseBodyReponse(Exchange exchange) {
 
+		String responseString = "{\"host\":\""+exchange.getIn().getHeader("KAFKA.key")+"\",\"jobStatus\":"+exchange.getIn().getBody().toString()+"}";
+		System.out.println(responseString);
+		return responseString;
+	}
 
 
 

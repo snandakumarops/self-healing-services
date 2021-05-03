@@ -65,12 +65,27 @@ public class RiskValidationBean {
 		DMNResult dmnResult = dmnRuntime.evaluateAll(dmnModel, dmnContext);
 
 		DMNDecisionResult createIncident = dmnResult.getDecisionResultByName("Create Incident");
+
 		return createIncident.getResult().toString();
     }
 
+	public String createIncident(Exchange exchange) {
 
 
+		System.out.println("inside block");
+		String status = exchange.getIn().getBody().toString();
+
+		System.out.println("sensuEvents" + status);
+		String host = exchange.getIn().getHeader("kafka.KEY").toString();
+
+//		SensuEvents sensuEvents = new Gson().fromJson(status,SensuEvents.class);
+
+		String serviceNowApiCall = "{'short_description':'Issue needs assistance - Event : "+host+"- Automation Remediation Failed ','assignment_group':'287ebd7da9fe198100f92cc8d1d2154e'," +
+				"'urgency':'2','impact':'2'}";
+		System.out.println(serviceNowApiCall);
+		return serviceNowApiCall;
+
+	}
 
 
-
-}
+	}
