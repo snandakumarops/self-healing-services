@@ -35,8 +35,8 @@ public class RiskValidationRouteBuilder extends RouteBuilder {
 
 	private static final Logger LOG = Logger.getLogger(RiskValidationRouteBuilder.class.getName());
 
-//	private String kafkaBootstrap = "my-cluster-kafka-brokers:9092";
-private String kafkaBootstrap = "localhost:9092";
+	private String kafkaBootstrap = "my-cluster-kafka-brokers:9092";
+//private String kafkaBootstrap = "localhost:9092";
 	private String kafkaCreditTransferCreditorTopic = "sensu";
 	private String consumerMaxPollRecords ="50000";
 	private String consumerCount = "3";
@@ -66,7 +66,7 @@ private String kafkaBootstrap = "localhost:9092";
 					+ "&groupId=" + consumerGroup).id("apbEvents")
 			.bean(RiskValidationBean.class,"prepareAnsibleRequest")
 					.setHeader(Exchange.HTTP_METHOD, constant("POST"))
-					.setHeader("Authorization",constant("Bearer QwKXF0fy99fNr1GJbLzwaLmXNuFp1L"))
+					.setHeader("Authorization",constant("Bearer oJ6QSX2x8FKxvDccyvCzEMyakQjEAH"))
 					.setHeader("Content-Type",constant("application/json"))
 					.toD("https4://"+ansibleTowerUrl+"/api/v2/job_templates/${header.apbName}/launch/")
 					.bean(RiskValidationBean.class,"readAnsibleResponse")
