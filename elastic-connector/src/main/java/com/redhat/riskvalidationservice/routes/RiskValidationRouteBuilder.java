@@ -35,7 +35,7 @@ public class RiskValidationRouteBuilder extends RouteBuilder {
 
 	private static final Logger LOG = Logger.getLogger(RiskValidationRouteBuilder.class.getName());
 
-	private String kafkaBootstrap = "localhost:9092";
+	private String kafkaBootstrap = "my-cluster-kafka-brokers:9092";
 	private String kafkaCreditTransferCreditorTopic = "sensu";
 	private String consumerMaxPollRecords ="50000";
 	private String consumerCount = "3";
@@ -64,31 +64,31 @@ public class RiskValidationRouteBuilder extends RouteBuilder {
 					+ consumerMaxPollRecords + "&seekTo=" + "end"
 					+ "&groupId=" + consumerGroup)
 					.setHeader(Exchange.HTTP_METHOD, constant("POST"))
-					.setHeader("Authorization",constant("Basic ZWxhc3RpYzpvd1U1M3QyOGUyNmdQTjA5N3A5RXdoeEE="))
+					.setHeader("Authorization",constant("Basic ZWxhc3RpYzpJdTBTWkIxVHExWDAxaTY1OG1hQTZ0QTE="))
 					.setHeader("Content-Type",constant("application/json"))
-					.toD("https4://elastic-route-reporting.apps.cluster-a246.a246.example.opentlc.com/check-events/chk")
+					.toD("https4://elastic-route-elastic.apps.cluster-b316.b316.example.opentlc.com/check-events/chk")
 					.log("${body}");
 
 			from("kafka:" + "ansiblestat" + "?brokers=" + kafkaBootstrap + "&maxPollRecords="
 					+ consumerMaxPollRecords + "&seekTo=" + "end"
 					+ "&groupId=" + consumerGroup)
 					.setHeader(Exchange.HTTP_METHOD, constant("POST"))
-					.setHeader("Authorization",constant("Basic ZWxhc3RpYzpvd1U1M3QyOGUyNmdQTjA5N3A5RXdoeEE="))
+					.setHeader("Authorization",constant("Basic ZWxhc3RpYzpJdTBTWkIxVHExWDAxaTY1OG1hQTZ0QTE="))
 					.setHeader("Content-Type",constant("application/json"))
 					.bean(RiskValidationBean.class,"parseBody")
 					.log("${body}")
-					.toD("https4://elastic-route-reporting.apps.cluster-a246.a246.example.opentlc.com/ansible-status/ansds")
+					.toD("https4://elastic-route-elastic.apps.cluster-b316.b316.example.opentlc.com/ansible-status/ansds")
 					.log("${body}");
 
 			from("kafka:" + "statuschck" + "?brokers=" + kafkaBootstrap + "&maxPollRecords="
 					+ consumerMaxPollRecords + "&seekTo=" + "end"
 					+ "&groupId=" + consumerGroup)
 					.setHeader(Exchange.HTTP_METHOD, constant("POST"))
-					.setHeader("Authorization",constant("Basic ZWxhc3RpYzpvd1U1M3QyOGUyNmdQTjA5N3A5RXdoeEE="))
+					.setHeader("Authorization",constant("Basic ZWxhc3RpYzpJdTBTWkIxVHExWDAxaTY1OG1hQTZ0QTE="))
 					.setHeader("Content-Type",constant("application/json"))
 					.bean(RiskValidationBean.class,"parseBodyReponse")
 					.log("${body}")
-					.toD("https4://elastic-route-reporting.apps.cluster-a246.a246.example.opentlc.com/ansible-exec-status/ansiblec")
+					.toD("https4://elastic-route-elastic.apps.cluster-b316.b316.example.opentlc.com/ansible-exec-status/ansiblec")
 					.log("${body}");
 
 
@@ -96,9 +96,9 @@ public class RiskValidationRouteBuilder extends RouteBuilder {
 					+ consumerMaxPollRecords + "&seekTo=" + "end"
 					+ "&groupId=" + consumerGroup)
 					.setHeader(Exchange.HTTP_METHOD, constant("POST"))
-					.setHeader("Authorization",constant("Basic ZWxhc3RpYzpvd1U1M3QyOGUyNmdQTjA5N3A5RXdoeEE="))
+					.setHeader("Authorization",constant("Basic ZWxhc3RpYzpJdTBTWkIxVHExWDAxaTY1OG1hQTZ0QTE="))
 					.setHeader("Content-Type",constant("application/json"))
-					.toD("https4://elastic-route-reporting.apps.cluster-a246.a246.example.opentlc.com/failed-decision/failed")
+					.toD("https4://elastic-route-elastic.apps.cluster-b316.b316.example.opentlc.com/failed-decision/failed")
 					.log("${body}");
 
 
