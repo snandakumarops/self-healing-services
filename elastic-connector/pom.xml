@@ -52,7 +52,7 @@
 
 
   <groupId>rtp.demo</groupId>
-  <artifactId>check-events-service</artifactId>
+  <artifactId>elastic-connector</artifactId>
   <version>1.0.0.0</version>
 
   <dependencyManagement>
@@ -102,7 +102,11 @@
 
     </dependency>
 
-
+    <dependency>
+      <groupId>org.apache.camel</groupId>
+      <artifactId>camel-http4-starter</artifactId>
+      <version>2.23.2.fuse-740011-redhat-00001</version>
+    </dependency>
     <!-- https://mvnrepository.com/artifact/org.drools/drools-decisiontables -->
 
     <!-- Fuse Camel -->
@@ -112,12 +116,7 @@
       <version>${camel.version}</version>
     </dependency>
 
-    <dependency>
-      <groupId>com.myspace</groupId>
-      <artifactId>DMNListExample</artifactId>
-      <version>1.0.0</version>
 
-    </dependency>
     <dependency>
       <groupId>org.apache.camel</groupId>
       <artifactId>camel-kafka</artifactId>
@@ -128,6 +127,7 @@
       <artifactId>camel-stream</artifactId>
       <version>${camel.version}</version>
     </dependency>
+
 
 
 
@@ -333,7 +333,7 @@
       <plugin>
         <groupId>io.fabric8</groupId>
         <artifactId>fabric8-maven-plugin</artifactId>
-        <version>4.3.0</version>
+        <version>4.4.1</version>
         <executions>
           <execution>
             <id>fmp</id>

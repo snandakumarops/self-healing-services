@@ -33,30 +33,19 @@ public class FilterStrategy implements AggregationStrategy {
 
             SensuEvents sensuEvents = new SensuEvents();
 
-            newExchange.setProperty("sensuId",example.getId());
-
             sensuEvents.setCheckType(example.getCheck().getMetadata().getName());
             sensuEvents.setEventDate(example.getCheck().getExecuted());
-            sensuEvents.setHostName(example.getEntity().getSystem().getHostname());
+            sensuEvents.setHostName(example.getEntity().getMetadata().getName());
             sensuEvents.setStatus(String.valueOf(example.getCheck().getStatus()));
-
-            System.out.println(example.getCheck().getMetadata().getName());
-
-            System.out.println(new Gson().toJson(sensuEvents));
             HashMap<String, List<ApbRuns>> aggregateMap = null;
 
             DMNContext dmnContext = dmnRuntime.newContext();
             dmnContext.set("SensuEvents", sensuEvents);
             if (null != runs) {
                 dmnContext.set("ApbRuns", runs.get(example.getEntity().getSystem().getHostname()));
-                System.out.println(runs.get(example.getEntity().getSystem().getHostname()));
             } else {
                 dmnContext.set("ApbRuns", new ArrayList<>());
             }
-
-
-            dmnContext.set("Frequency",2);
-            dmnContext.set("Interval",1);
 
             DMNResult dmnResult = dmnRuntime.evaluateAll(dmnModel, dmnContext);
 
@@ -66,8 +55,7 @@ public class FilterStrategy implements AggregationStrategy {
             System.out.println("invoke" + resultOffer.getResult());
             System.out.println("playbook" + playbook.getResult());
 
-
-            if (playbook.getResult() != null) {
+            if (resultOffer.getResult() != null) {
                 ApbRuns apb = new ApbRuns();
                 apb.setApbName(playbook.getResult().toString());
                 apb.setCheckName(sensuEvents.getCheckType());
@@ -77,8 +65,6 @@ public class FilterStrategy implements AggregationStrategy {
 
                 newExchange.getIn().setBody(new Gson().toJson(apb));
 
-            } else {
-                newExchange.getIn().setBody(null);
             }
 
 

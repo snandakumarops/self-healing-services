@@ -8,7 +8,7 @@ import org.apache.camel.Exchange;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.kafka.KafkaComponent;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
+
 
 import org.apache.camel.component.http4.HttpComponent;
 import org.apache.camel.util.jsse.SSLContextParameters;
@@ -23,10 +23,8 @@ import java.net.Socket;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 
-
 import java.util.logging.Logger;
 
-@Component
 public class RiskValidationRouteBuilder extends RouteBuilder {
 
 
@@ -37,18 +35,16 @@ public class RiskValidationRouteBuilder extends RouteBuilder {
 
 	private static final Logger LOG = Logger.getLogger(RiskValidationRouteBuilder.class.getName());
 
-	@Value("${INVOKE_ANSIBLE_KAFKA_ROUTE}")
-	private String invokeAnsibleKafkaRoute;
+	private String kafkaBootstrap = "my-cluster-kafka-brokers:9092";
+	private String kafkaCreditTransferCreditorTopic = "sensu";
+	private String consumerMaxPollRecords ="50000";
+	private String consumerCount = "3";
+	private String consumerSeekTo = "beginning";
+	private String consumerGroup = "elasticconnector";
+	private String consumerGroup2 = "risk";
 
-	@Value("${KAFKA_BOOTSTRAP_SERVERS}")
-	private String kafkaBootstrap;
 
 
-	public static final String ROUTE_ID_INVOKE_ANSIBLE_KAFKA = "ROUTE_ID_INVOKE_ANSIBLE_KAFKA";
-	public static final String ROUTE_ID_PREPARE_ANSIBLE_REQUEST = "ROUTE_ID_PREPARE_ANSIBLE_REQUEST";
-	public static final String ROUTE_ID_SEND_TO_TOWER = "ROUTE_ID_SEND_TO_TOWER";
-	public static final String ROUTE_ID_READ_ANSIBLE_RESPONSE = "ROUTE_ID_READ_ANSIBLE_RESPONSE";
-	public static final String ROUTE_ID_SEND_ANSIBLE_STATUS_KAFKA = "ROUTE_ID_SEND_ANSIBLE_STATUS_KAFKA";
 
 	@Override
 	public void configure() throws Exception {
@@ -60,31 +56,56 @@ public class RiskValidationRouteBuilder extends RouteBuilder {
 			kafka.setBrokers(kafkaBootstrap);
 			this.getContext().addComponent("kafka", kafka);
 
+
 			HttpComponent httpComponent = createCustomHttp4Component();
 			this.getContext().addComponent("https4", httpComponent);
 
-			from(invokeAnsibleKafkaRoute)
-				.id(ROUTE_ID_INVOKE_ANSIBLE_KAFKA)
-				.routeId(ROUTE_ID_INVOKE_ANSIBLE_KAFKA)
-				.bean(RiskValidationBean.class,"prepareAnsibleRequest").id(ROUTE_ID_PREPARE_ANSIBLE_REQUEST)
+			from("kafka:" + "sensu-failure" + "?brokers=" + kafkaBootstrap + "&maxPollRecords="
+					+ consumerMaxPollRecords + "&seekTo=" + "end"
+					+ "&groupId=" + consumerGroup)
 					.setHeader(Exchange.HTTP_METHOD, constant("POST"))
-					.setHeader("Authorization",constant("Bearer HZi06ABZxcW1KQhD6t5ffK99l3HKpu"))
+					.setHeader("Authorization",constant("Basic ZWxhc3RpYzpJdTBTWkIxVHExWDAxaTY1OG1hQTZ0QTE="))
 					.setHeader("Content-Type",constant("application/json"))
-					.toD("https4://"+ansibleTowerUrl+"/api/v2/job_templates/${header.apbName}/launch/").id(ROUTE_ID_SEND_TO_TOWER)
-					.bean(RiskValidationBean.class,"readAnsibleResponse").id(ROUTE_ID_READ_ANSIBLE_RESPONSE)
-					.to("kafka:"+"ansiblestat"+ "?brokers=" + kafkaBootstrap).id(ROUTE_ID_SEND_ANSIBLE_STATUS_KAFKA);
+					.toD("https4://elastic-route-elastic.apps.cluster-b316.b316.example.opentlc.com/check-events/chk")
+					.log("${body}");
+
+			from("kafka:" + "ansiblestat" + "?brokers=" + kafkaBootstrap + "&maxPollRecords="
+					+ consumerMaxPollRecords + "&seekTo=" + "end"
+					+ "&groupId=" + consumerGroup)
+					.setHeader(Exchange.HTTP_METHOD, constant("POST"))
+					.setHeader("Authorization",constant("Basic ZWxhc3RpYzpJdTBTWkIxVHExWDAxaTY1OG1hQTZ0QTE="))
+					.setHeader("Content-Type",constant("application/json"))
+					.bean(RiskValidationBean.class,"parseBody")
+					.log("${body}")
+					.toD("https4://elastic-route-elastic.apps.cluster-b316.b316.example.opentlc.com/ansible-status/ansds")
+					.log("${body}");
+
+			from("kafka:" + "statuschck" + "?brokers=" + kafkaBootstrap + "&maxPollRecords="
+					+ consumerMaxPollRecords + "&seekTo=" + "end"
+					+ "&groupId=" + consumerGroup)
+					.setHeader(Exchange.HTTP_METHOD, constant("POST"))
+					.setHeader("Authorization",constant("Basic ZWxhc3RpYzpJdTBTWkIxVHExWDAxaTY1OG1hQTZ0QTE="))
+					.setHeader("Content-Type",constant("application/json"))
+					.bean(RiskValidationBean.class,"parseBodyReponse")
+					.log("${body}")
+					.toD("https4://elastic-route-elastic.apps.cluster-b316.b316.example.opentlc.com/ansible-exec-status/ansiblec")
+					.log("${body}");
 
 
-
-
+			from("kafka:" + "inc" + "?brokers=" + kafkaBootstrap + "&maxPollRecords="
+					+ consumerMaxPollRecords + "&seekTo=" + "end"
+					+ "&groupId=" + consumerGroup)
+					.setHeader(Exchange.HTTP_METHOD, constant("POST"))
+					.setHeader("Authorization",constant("Basic ZWxhc3RpYzpJdTBTWkIxVHExWDAxaTY1OG1hQTZ0QTE="))
+					.setHeader("Content-Type",constant("application/json"))
+					.toD("https4://elastic-route-elastic.apps.cluster-b316.b316.example.opentlc.com/failed-decision/failed")
+					.log("${body}");
 
 
 
 		}catch (Exception e) {
 			e.printStackTrace();
 		}
-
-
 	}
 
 	public HttpComponent createCustomHttp4Component() {

@@ -44,7 +44,7 @@ public class RiskValidationRouteBuilder extends RouteBuilder {
 			from("kafka:" + "sensu-failure" + "?brokers=" + kafkaBootstrap + "&maxPollRecords="
 					+ consumerMaxPollRecords + "&seekTo=" + "end"
 					+ "&groupId=" + consumerGroup).routeId("readSensu")
-
+					.log("${body}")
 					.to("direct:sensuevents");
 			from("direct:sensuevents")
 					.aggregate(body().tokenize(), new FilterStrategy()).completionInterval(2000)
@@ -56,6 +56,8 @@ public class RiskValidationRouteBuilder extends RouteBuilder {
 					.otherwise()
 					.bean(RiskValidationBean.class,"setEventDecisionHeader")
 					.to("kafka:"+"failed-decision"+ "?brokers=" + kafkaBootstrap);
+
+
 
 
 		}catch (Exception e) {
