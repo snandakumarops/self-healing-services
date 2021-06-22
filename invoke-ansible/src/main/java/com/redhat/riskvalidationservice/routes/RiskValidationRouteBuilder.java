@@ -8,6 +8,7 @@ import org.apache.camel.Exchange;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.kafka.KafkaComponent;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 import org.apache.camel.component.http4.HttpComponent;
 import org.apache.camel.util.jsse.SSLContextParameters;
@@ -25,6 +26,7 @@ import java.security.cert.X509Certificate;
 
 import java.util.logging.Logger;
 
+@Component
 public class RiskValidationRouteBuilder extends RouteBuilder {
 
 
@@ -35,17 +37,18 @@ public class RiskValidationRouteBuilder extends RouteBuilder {
 
 	private static final Logger LOG = Logger.getLogger(RiskValidationRouteBuilder.class.getName());
 
-	private String kafkaBootstrap = "my-cluster-kafka-brokers:9092";
-//private String kafkaBootstrap = "localhost:9092";
-	private String kafkaCreditTransferCreditorTopic = "sensu";
-	private String consumerMaxPollRecords ="50000";
-	private String consumerCount = "3";
-	private String consumerSeekTo = "beginning";
-	private String consumerGroup = "invokeansible";
-	private String consumerGroup2 = "risk";
+	@Value("${INVOKE_ANSIBLE_KAFKA_ROUTE}")
+	private String invokeAnsibleKafkaRoute;
+
+	@Value("${KAFKA_BOOTSTRAP_SERVERS}")
+	private String kafkaBootstrap;
 
 
-
+	public static final String ROUTE_ID_INVOKE_ANSIBLE_KAFKA = "ROUTE_ID_INVOKE_ANSIBLE_KAFKA";
+	public static final String ROUTE_ID_PREPARE_ANSIBLE_REQUEST = "ROUTE_ID_PREPARE_ANSIBLE_REQUEST";
+	public static final String ROUTE_ID_SEND_TO_TOWER = "ROUTE_ID_SEND_TO_TOWER";
+	public static final String ROUTE_ID_READ_ANSIBLE_RESPONSE = "ROUTE_ID_READ_ANSIBLE_RESPONSE";
+	public static final String ROUTE_ID_SEND_ANSIBLE_STATUS_KAFKA = "ROUTE_ID_SEND_ANSIBLE_STATUS_KAFKA";
 
 	@Override
 	public void configure() throws Exception {
@@ -60,17 +63,16 @@ public class RiskValidationRouteBuilder extends RouteBuilder {
 			HttpComponent httpComponent = createCustomHttp4Component();
 			this.getContext().addComponent("https4", httpComponent);
 
-
-			from("kafka:" + "event-decision" + "?brokers=" + kafkaBootstrap + "&maxPollRecords="
-					+ consumerMaxPollRecords + "&seekTo=" + "beginning"
-					+ "&groupId=" + consumerGroup).id("apbEvents")
-			.bean(RiskValidationBean.class,"prepareAnsibleRequest")
+			from(invokeAnsibleKafkaRoute)
+				.id(ROUTE_ID_INVOKE_ANSIBLE_KAFKA)
+				.routeId(ROUTE_ID_INVOKE_ANSIBLE_KAFKA)
+				.bean(RiskValidationBean.class,"prepareAnsibleRequest").id(ROUTE_ID_PREPARE_ANSIBLE_REQUEST)
 					.setHeader(Exchange.HTTP_METHOD, constant("POST"))
 					.setHeader("Authorization",constant("Bearer HZi06ABZxcW1KQhD6t5ffK99l3HKpu"))
 					.setHeader("Content-Type",constant("application/json"))
-					.toD("https4://"+ansibleTowerUrl+"/api/v2/job_templates/${header.apbName}/launch/")
-					.bean(RiskValidationBean.class,"readAnsibleResponse")
-					.to("kafka:"+"ansiblestat"+ "?brokers=" + kafkaBootstrap);
+					.toD("https4://"+ansibleTowerUrl+"/api/v2/job_templates/${header.apbName}/launch/").id(ROUTE_ID_SEND_TO_TOWER)
+					.bean(RiskValidationBean.class,"readAnsibleResponse").id(ROUTE_ID_READ_ANSIBLE_RESPONSE)
+					.to("kafka:"+"ansiblestat"+ "?brokers=" + kafkaBootstrap).id(ROUTE_ID_SEND_ANSIBLE_STATUS_KAFKA);
 
 
 
