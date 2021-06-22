@@ -16,13 +16,14 @@ import org.kie.api.runtime.KieContainer;
 import org.kie.dmn.api.core.*;
 import org.kie.dmn.core.util.KieHelper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import javax.ws.rs.client.WebTarget;
 import java.util.*;
 import java.util.logging.Logger;
 
-@Service
+@Component
 public class RiskValidationBean {
 
 	private static final Logger LOG = Logger.getLogger(RiskValidationBean.class.getName());
