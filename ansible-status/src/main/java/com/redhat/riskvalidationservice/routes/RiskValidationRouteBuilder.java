@@ -64,7 +64,7 @@ public class RiskValidationRouteBuilder extends RouteBuilder {
                     .delay(20000)
 			        .bean(RiskValidationBean.class,"prepareAnsibleRequest")
 					.setHeader(Exchange.HTTP_METHOD, constant("GET"))
-					.setHeader("Authorization",constant("Bearer 3Cu8tUNi8zfbz90JTcQqq0kJ6Yfdmj"))
+					.setHeader("Authorization",constant("Bearer p9LHmO2lkQxZS47rlPwQWuwJkCpSCl"))
 					.toD("https4://"+ansibleTowerUrl+"/api/v2/jobs/${header.jobId}/")
                     .bean(RiskValidationBean.class,"readAnsibleResponse")
                     .log("${body}")
